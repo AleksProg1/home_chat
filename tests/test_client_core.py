@@ -9,7 +9,7 @@ from client.commands import (
     broadcast_command,
     parse_user_command,
 )
-from client.controller import ChatClientController
+from client.chat_client_controller import ChatClientController
 from client.events import ClientStatus, ViewEventKind
 from client.presenter import ChatPresenter
 from client.session import ChatSession
@@ -126,7 +126,7 @@ def test_presenter_maps_protocol_messages_to_ui_events():
 
 
 @pytest.mark.asyncio
-async def test_controller_uses_session_and_emits_presented_events():
+async def test_chat_client_controller_uses_session_and_emits_presented_events():
     raw_message = encode_message(server_welcome("alice", ["alice"]))
     transport = FakeTransport(incoming=[raw_message])
     events = []
@@ -156,7 +156,7 @@ async def test_controller_uses_session_and_emits_presented_events():
 
 
 @pytest.mark.asyncio
-async def test_controller_returns_to_disconnected_when_start_fails():
+async def test_chat_client_controller_returns_to_disconnected_when_start_fails():
     transport = FailingTransport()
     statuses = []
 

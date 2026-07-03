@@ -8,7 +8,7 @@ from contextlib import suppress
 
 from client.commands import CommandParseError, parse_user_command
 from client.config import ClientConfig
-from client.controller import ChatClientController
+from client.chat_client_controller import ChatClientController
 from client.events import ClientStatus, ViewEvent, ViewEventKind
 from client.session import ChatSession
 from client.transport import WebSocketChatTransport
@@ -50,7 +50,9 @@ async def run_cli(server_uri: str) -> None:
 async def _prompt_username() -> str | None:
     while True:
         try:
-            username = (await asyncio.to_thread(input, "Please enter your username: ")).strip()
+            username = (
+                await asyncio.to_thread(input, "Please enter your username: ")
+            ).strip()
         except (EOFError, KeyboardInterrupt):
             print()
             return None

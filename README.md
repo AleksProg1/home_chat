@@ -73,7 +73,7 @@ Server messages:
 - `server/ws_handler.py` adapts websocket frames to server service calls.
 - `client/transport.py` contains the shared websocket transport for all clients.
 - `client/session.py` owns client-side protocol serialization and deserialization.
-- `client/controller.py` coordinates client lifecycle through UI-neutral commands and events.
+- `client/chat_client_controller.py` coordinates client lifecycle through UI-neutral commands and events.
 - `client/presenter.py` maps server protocol messages to UI-neutral view events.
 - `client/cli.py` and `client/gui.py` differ only by user interaction style.
 

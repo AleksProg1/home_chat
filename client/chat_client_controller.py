@@ -1,4 +1,4 @@
-"""Application controller shared by CLI and GUI clients."""
+"""Chat client application controller shared by CLI and GUI adapters."""
 
 from __future__ import annotations
 
