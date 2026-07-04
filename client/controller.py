@@ -14,15 +14,6 @@ from client.session import ChatSession
 ViewEventHandler = Callable[[ViewEvent], Awaitable[None]]
 StatusHandler = Callable[[ClientStatus], Awaitable[None]]
 
-
-async def noop_view_handler(event: ViewEvent) -> None:
-    return None
-
-
-async def noop_status_handler(status: ClientStatus) -> None:
-    return None
-
-
 class ChatClientController:
     """Coordinates session lifecycle and exposes UI-friendly operations."""
 
@@ -30,8 +21,8 @@ class ChatClientController:
         self,
         session: ChatSession,
         presenter: ChatPresenter | None = None,
-        on_event: ViewEventHandler = noop_view_handler,
-        on_status: StatusHandler = noop_status_handler,
+        on_event: ViewEventHandler | None = None,
+        on_status: StatusHandler | None = None,
     ) -> None:
         self._session = session
         self._presenter = presenter or ChatPresenter()
@@ -58,11 +49,11 @@ class ChatClientController:
         self._listen_task = asyncio.create_task(self._listen())
 
     async def submit(self, command: UserCommand) -> None:
-        if command.kind is UserCommandKind.BROADCAST:
+        if command.kind == UserCommandKind.BROADCAST:
             await self._session.broadcast(command.text or "")
-        elif command.kind is UserCommandKind.UNICAST:
+        elif command.kind == UserCommandKind.UNICAST:
             await self._session.unicast(command.to or "", command.text or "")
-        elif command.kind is UserCommandKind.LEAVE:
+        elif command.kind == UserCommandKind.LEAVE:
             await self.stop(send_leave=True)
 
     async def stop(self, send_leave: bool = True) -> None:
@@ -92,7 +83,7 @@ class ChatClientController:
             await self._set_status(ClientStatus.DISCONNECTED)
 
     async def _set_status(self, status: ClientStatus) -> None:
-        if self._status is status:
+        if self._status == status:
             return
         self._status = status
         await self._on_status(status)

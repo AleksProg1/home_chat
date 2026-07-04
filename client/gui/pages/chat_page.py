@@ -1,4 +1,4 @@
-from PyQt5 import QtCore, QtGui, QtWidgets
+from PyQt5 import QtCore, QtWidgets
 
 
 class ChatPage(QtWidgets.QWidget):
@@ -7,6 +7,8 @@ class ChatPage(QtWidgets.QWidget):
 
     def __init__(self) -> None:
         super().__init__()
+
+        self._current_username: str | None = None
 
         self._build_ui()
         self._connect_signals()
@@ -38,6 +40,7 @@ class ChatPage(QtWidgets.QWidget):
 
         self.sidebar_card = QtWidgets.QFrame()
         self.sidebar_card.setObjectName("card")
+
         sidebar = QtWidgets.QVBoxLayout(self.sidebar_card)
         sidebar.setContentsMargins(14, 14, 14, 14)
         sidebar.setSpacing(10)
@@ -59,6 +62,7 @@ class ChatPage(QtWidgets.QWidget):
 
         self.messages_card = QtWidgets.QFrame()
         self.messages_card.setObjectName("card")
+
         messages_layout = QtWidgets.QVBoxLayout(self.messages_card)
         messages_layout.setContentsMargins(14, 14, 14, 14)
 
@@ -105,15 +109,30 @@ class ChatPage(QtWidgets.QWidget):
 
     def selected_user(self) -> str | None:
         selected_items = self.users.selectedItems()
+
         if not selected_items:
             return None
+
         return selected_items[0].text()
+
+    def set_current_username(self, username: str) -> None:
+        self._current_username = username or None
+
+        if username:
+            self.set_title(f"Chat as {username}")
+        else:
+            self.set_title("Chat")
 
     def update_users(self, users: tuple[str, ...]) -> None:
         selected_user = self.selected_user()
 
+        visible_users = [
+            user for user in users
+            if user != self._current_username
+        ]
+
         self.users.clear()
-        self.users.addItems(list(users))
+        self.users.addItems(visible_users)
 
         if selected_user is None:
             return
@@ -142,109 +161,109 @@ class ChatPage(QtWidgets.QWidget):
 
     def _apply_styles(self) -> None:
         self.setStyleSheet("""
-            ChatPage {
-                background-color: #111827;
-            }
+        ChatPage {
+            background-color: #111827;
+        }
 
-            QLabel#chatTitle {
-                color: #F9FAFB;
-                font-size: 24px;
-                font-weight: 700;
-            }
+        QLabel#chatTitle {
+            color: #F9FAFB;
+            font-size: 24px;
+            font-weight: 700;
+        }
 
-            QLabel#chatStatus {
-                color: #22C55E;
-                font-size: 14px;
-            }
+        QLabel#chatStatus {
+            color: #22C55E;
+            font-size: 14px;
+        }
 
-            QLabel#sectionTitle {
-                color: #F9FAFB;
-                font-size: 15px;
-                font-weight: 700;
-            }
+        QLabel#sectionTitle {
+            color: #F9FAFB;
+            font-size: 15px;
+            font-weight: 700;
+        }
 
-            QFrame#card {
-                background-color: #1F2937;
-                border: 1px solid #374151;
-                border-radius: 14px;
-            }
+        QFrame#card {
+            background-color: #1F2937;
+            border: 1px solid #374151;
+            border-radius: 14px;
+        }
 
-            QListWidget {
-                background-color: #111827;
-                color: #F9FAFB;
-                border: 1px solid #374151;
-                border-radius: 10px;
-                padding: 6px;
-                outline: none;
-            }
+        QListWidget {
+            background-color: #111827;
+            color: #F9FAFB;
+            border: 1px solid #374151;
+            border-radius: 10px;
+            padding: 6px;
+            outline: none;
+        }
 
-            QListWidget::item {
-                padding: 8px;
-                border-radius: 8px;
-            }
+        QListWidget::item {
+            padding: 8px;
+            border-radius: 8px;
+        }
 
-            QListWidget::item:selected {
-                background-color: #2563EB;
-                color: white;
-            }
+        QListWidget::item:selected {
+            background-color: #2563EB;
+            color: white;
+        }
 
-            QTextEdit {
-                background-color: #111827;
-                color: #F9FAFB;
-                border: 1px solid #374151;
-                border-radius: 10px;
-                padding: 10px;
-                font-size: 14px;
-            }
+        QTextEdit {
+            background-color: #111827;
+            color: #F9FAFB;
+            border: 1px solid #374151;
+            border-radius: 10px;
+            padding: 10px;
+            font-size: 14px;
+        }
 
-            QLineEdit {
-                background-color: #1F2937;
-                color: #F9FAFB;
-                border: 1px solid #374151;
-                border-radius: 10px;
-                padding: 0 12px;
-                font-size: 14px;
-            }
+        QLineEdit {
+            background-color: #1F2937;
+            color: #F9FAFB;
+            border: 1px solid #374151;
+            border-radius: 10px;
+            padding: 0 12px;
+            font-size: 14px;
+        }
 
-            QLineEdit:focus {
-                border: 1px solid #3B82F6;
-            }
+        QLineEdit:focus {
+            border: 1px solid #3B82F6;
+        }
 
-            QPushButton {
-                background-color: #2563EB;
-                color: white;
-                border: none;
-                border-radius: 10px;
-                font-weight: 600;
-                padding: 8px 14px;
-            }
+        QPushButton {
+            background-color: #2563EB;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            padding: 8px 14px;
+        }
 
-            QPushButton:hover {
-                background-color: #3B82F6;
-            }
+        QPushButton:hover {
+            background-color: #3B82F6;
+        }
 
-            QPushButton:pressed {
-                background-color: #1D4ED8;
-            }
+        QPushButton:pressed {
+            background-color: #1D4ED8;
+        }
 
-            QPushButton:disabled {
-                background-color: #374151;
-                color: #9CA3AF;
-            }
+        QPushButton:disabled {
+            background-color: #374151;
+            color: #9CA3AF;
+        }
 
-            QPushButton#secondaryButton {
-                background-color: #374151;
-            }
+        QPushButton#secondaryButton {
+            background-color: #374151;
+        }
 
-            QPushButton#secondaryButton:hover {
-                background-color: #4B5563;
-            }
+        QPushButton#secondaryButton:hover {
+            background-color: #4B5563;
+        }
 
-            QPushButton#leaveButton {
-                background-color: #DC2626;
-            }
+        QPushButton#leaveButton {
+            background-color: #DC2626;
+        }
 
-            QPushButton#leaveButton:hover {
-                background-color: #EF4444;
-            }
+        QPushButton#leaveButton:hover {
+            background-color: #EF4444;
+        }
         """)

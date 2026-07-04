@@ -10,7 +10,7 @@ class ChatPresenter:
     """Keeps server-message interpretation out of CLI and GUI code."""
 
     def present(self, message: ServerMessage) -> list[ViewEvent]:
-        if message.event is ServerEvent.WELCOME:
+        if message.event == ServerEvent.WELCOME:
             return [
                 ViewEvent(
                     kind=ViewEventKind.INFO,
@@ -20,7 +20,7 @@ class ChatPresenter:
                 self._users_event(message.users),
             ]
 
-        if message.event is ServerEvent.USER_JOINED:
+        if message.event == ServerEvent.USER_JOINED:
             return [
                 ViewEvent(
                     kind=ViewEventKind.INFO,
@@ -30,7 +30,7 @@ class ChatPresenter:
                 self._users_event(message.users),
             ]
 
-        if message.event is ServerEvent.USER_LEFT:
+        if message.event == ServerEvent.USER_LEFT:
             return [
                 ViewEvent(
                     kind=ViewEventKind.INFO,
@@ -40,16 +40,16 @@ class ChatPresenter:
                 self._users_event(message.users),
             ]
 
-        if message.event is ServerEvent.USER_LIST:
+        if message.event == ServerEvent.USER_LIST:
             return [self._users_event(message.users)]
 
-        if message.event is ServerEvent.MESSAGE:
+        if message.event == ServerEvent.MESSAGE:
             return [self._message_event(message)]
 
-        if message.event is ServerEvent.ACK:
+        if message.event == ServerEvent.ACK:
             return [ViewEvent(kind=ViewEventKind.INFO, text=message.message or "OK")]
 
-        if message.event is ServerEvent.ERROR:
+        if message.event == ServerEvent.ERROR:
             return [
                 ViewEvent(
                     kind=ViewEventKind.ERROR,

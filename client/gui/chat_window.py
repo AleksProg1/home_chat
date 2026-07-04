@@ -36,13 +36,13 @@ class ChatWindow(QtWidgets.QMainWindow):
         self.pages.setCurrentWidget(self.login_page)
 
         self.setStyleSheet("""
-                QMainWindow {
-                    background-color: #111827;
-                }
+            QMainWindow {
+                background-color: #111827;
+            }
 
-                QStackedWidget#pages {
-                    background-color: #111827;
-                }
+            QStackedWidget#pages {
+                background-color: #111827;
+            }
         """)
 
     def _connect_signals(self) -> None:
@@ -76,6 +76,8 @@ class ChatWindow(QtWidgets.QMainWindow):
         if is_connected:
             self.pages.setCurrentWidget(self.chat_page)
         elif status is ClientStatus.DISCONNECTED:
+            self._username = ""
+            self.chat_page.set_current_username("")
             self.pages.setCurrentWidget(self.login_page)
             self.login_page.reset()
 
@@ -88,13 +90,14 @@ class ChatWindow(QtWidgets.QMainWindow):
 
     def _connect_requested(self, username: str) -> None:
         self._username = username
-        self.chat_page.set_title(f"Chat as {username}")
+        self.chat_page.set_current_username(username)
         self.connectRequested.emit(username)
 
     def _send_requested(self, text: str) -> None:
         selected_user = self.chat_page.selected_user()
 
-        if selected_user is None or selected_user == self._username:
+        if selected_user is None:
             self.broadcastRequested.emit(text)
-        else:
-            self.unicastRequested.emit(selected_user, text)
+            return
+
+        self.unicastRequested.emit(selected_user, text)
