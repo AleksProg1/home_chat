@@ -6,29 +6,29 @@ from dataclasses import dataclass
 from enum import StrEnum
 
 
-class UserCommandKind(StrEnum):
+class CommandKind(StrEnum):
     BROADCAST = "broadcast"
     UNICAST = "unicast"
     LEAVE = "leave"
 
 
-@dataclass(frozen=True, slots=True)
+@dataclass(frozen=True)
 class UserCommand:
-    kind: UserCommandKind
+    kind: CommandKind
     text: str | None = None
-    to: str | None = None
+    recipient: str | None = None
 
 
 def broadcast_command(text: str) -> UserCommand:
-    return UserCommand(kind=UserCommandKind.BROADCAST, text=text)
+    return UserCommand(kind=CommandKind.BROADCAST, text=text)
 
 
 def unicast_command(to: str, text: str) -> UserCommand:
-    return UserCommand(kind=UserCommandKind.UNICAST, to=to, text=text)
+    return UserCommand(kind=CommandKind.UNICAST, recipient=to, text=text)
 
 
 def leave_command() -> UserCommand:
-    return UserCommand(kind=UserCommandKind.LEAVE)
+    return UserCommand(kind=CommandKind.LEAVE)
 
 
 class CommandParseError(ValueError):
@@ -54,12 +54,12 @@ def _parse_private_command(text: str) -> UserCommand | None:
     if not text.startswith("["):
         return None
 
-    closing_bracket_index = text.find("]:")
-    if closing_bracket_index == -1:
+    separator = text.find("]:")
+    if separator == -1:
         raise CommandParseError("Use [username]: message for private messages")
 
-    username = text[1:closing_bracket_index].strip()
-    message = text[closing_bracket_index + 2 :].strip()
+    username = text[1:separator].strip()
+    message = text[separator + 2 :].strip()
 
     if not username:
         raise CommandParseError("Private message username cannot be empty")

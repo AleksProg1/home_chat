@@ -3,13 +3,16 @@
 from __future__ import annotations
 
 import asyncio
+import logging
 from collections.abc import Awaitable, Callable
 from contextlib import suppress
 
-from client.commands import UserCommand, UserCommandKind
+from client.commands import UserCommand, CommandKind
 from client.events import ClientStatus, ViewEvent
 from client.presenter import ChatPresenter
 from client.session import ChatSession
+
+logger = logging.getLogger(__name__)
 
 ViewEventHandler = Callable[[ViewEvent], Awaitable[None]]
 StatusHandler = Callable[[ClientStatus], Awaitable[None]]
@@ -53,24 +56,25 @@ class ChatClientController:
     async def submit(self, command: UserCommand) -> None:
         kind = command.kind
 
-        if kind == UserCommandKind.BROADCAST:
+        if kind == CommandKind.BROADCAST:
             if command.text is None:
                 return
             await self._session.broadcast(command.text)
             return
 
-        if kind == UserCommandKind.UNICAST:
-            if command.to is None or command.text is None:
+        if kind == CommandKind.UNICAST:
+            if command.recipient is None or command.text is None:
                 return
-            await self._session.unicast(command.to, command.text)
+            await self._session.unicast(command.recipient, command.text)
             return
 
-        if kind == UserCommandKind.LEAVE:
+        if kind == CommandKind.LEAVE:
             await self.stop(send_leave=True)
 
     async def stop(self, send_leave: bool = True) -> None:
         if send_leave and self._status == ClientStatus.CONNECTED:
             with suppress(Exception):
+                # Connection may already be closed during shutdown.
                 await self._session.leave()
 
         if self._listen_task is not None:
@@ -94,7 +98,8 @@ class ChatClientController:
             raise
 
         except Exception as exc:
-            event = self._presenter.disconnected(str(exc))
+            logger.exception("Error while listening for server messages")
+            event = self._presenter.disconnected(f"Disconnected: {exc}")
             await self._emit_event(event)
 
         finally:

@@ -23,7 +23,7 @@ class ClientStatus(StrEnum):
 @dataclass(frozen=True, slots=True)
 class ViewEvent:
     kind: ViewEventKind
-    text: str
+    text: str = ""
     users: tuple[str, ...] = ()
     from_username: str | None = None
     to: str | None = None

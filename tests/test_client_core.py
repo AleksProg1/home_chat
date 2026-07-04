@@ -5,7 +5,7 @@ import pytest
 
 from client.commands import (
     CommandParseError,
-    UserCommandKind,
+    CommandKind,
     broadcast_command,
     parse_user_command,
 )
@@ -88,14 +88,14 @@ async def test_session_deserializes_server_messages_with_shared_protocol():
 
 
 def test_command_parser_supports_broadcast_unicast_and_leave():
-    assert parse_user_command("hello").kind is UserCommandKind.BROADCAST
+    assert parse_user_command("hello").kind is CommandKind.BROADCAST
 
     private = parse_user_command("[bob]: hello")
-    assert private.kind is UserCommandKind.UNICAST
-    assert private.to == "bob"
+    assert private.kind is CommandKind.UNICAST
+    assert private.recipient == "bob"
     assert private.text == "hello"
 
-    assert parse_user_command("/logout").kind is UserCommandKind.LEAVE
+    assert parse_user_command("/logout").kind is CommandKind.LEAVE
 
 
 def test_command_parser_rejects_empty_input():
