@@ -21,9 +21,11 @@ class ChatWindow(QtWidgets.QMainWindow):
 
     def _init_ui(self) -> None:
         self.setWindowTitle("Home Chat")
-        self.resize(860, 560)
+        self.resize(900, 620)
+        self.setMinimumSize(760, 500)
 
         self.pages = QtWidgets.QStackedWidget()
+        self.pages.setObjectName("pages")
         self.setCentralWidget(self.pages)
 
         self.login_page = LoginPage()
@@ -32,6 +34,16 @@ class ChatWindow(QtWidgets.QMainWindow):
         self.pages.addWidget(self.login_page)
         self.pages.addWidget(self.chat_page)
         self.pages.setCurrentWidget(self.login_page)
+
+        self.setStyleSheet("""
+                QMainWindow {
+                    background-color: #111827;
+                }
+
+                QStackedWidget#pages {
+                    background-color: #111827;
+                }
+        """)
 
     def _connect_signals(self) -> None:
         self.login_page.connectRequested.connect(self._connect_requested)

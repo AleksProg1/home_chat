@@ -137,8 +137,8 @@ def server_user_left(username: str, users: list[str]) -> ServerMessage:
     )
 
 
-def server_user_list(users: list[str]) -> ServerMessage:
-    return ServerMessage(event=ServerEvent.USER_LIST, users=users)
+def server_user_list(username: str, users: list[str]) -> ServerMessage:
+    return ServerMessage(event=ServerEvent.USER_LIST, username=username, users=users)
 
 
 def server_error(code: ErrorCode, message: str) -> ServerMessage:

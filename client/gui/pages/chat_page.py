@@ -10,22 +10,23 @@ class ChatPage(QtWidgets.QWidget):
 
         self._build_ui()
         self._connect_signals()
+        self._apply_styles()
 
     def _build_ui(self) -> None:
         root = QtWidgets.QVBoxLayout(self)
-        root.setContentsMargins(12, 12, 12, 12)
-        root.setSpacing(10)
+        root.setContentsMargins(16, 16, 16, 16)
+        root.setSpacing(14)
 
         header = QtWidgets.QHBoxLayout()
 
-        self.chat_title = QtWidgets.QLabel("Chat")
-        title_font = self.chat_title.font()
-        title_font.setPointSize(16)
-        title_font.setBold(True)
-        self.chat_title.setFont(title_font)
+        self.chat_title = QtWidgets.QLabel("Home Chat")
+        self.chat_title.setObjectName("chatTitle")
 
         self.chat_status = QtWidgets.QLabel("disconnected")
+        self.chat_status.setObjectName("chatStatus")
+
         self.leave_button = QtWidgets.QPushButton("Leave")
+        self.leave_button.setObjectName("leaveButton")
 
         header.addWidget(self.chat_title)
         header.addStretch()
@@ -33,43 +34,52 @@ class ChatPage(QtWidgets.QWidget):
         header.addWidget(self.leave_button)
 
         content = QtWidgets.QHBoxLayout()
-        content.setSpacing(12)
+        content.setSpacing(14)
 
-        sidebar = QtWidgets.QVBoxLayout()
+        self.sidebar_card = QtWidgets.QFrame()
+        self.sidebar_card.setObjectName("card")
+        sidebar = QtWidgets.QVBoxLayout(self.sidebar_card)
+        sidebar.setContentsMargins(14, 14, 14, 14)
+        sidebar.setSpacing(10)
 
         users_label = QtWidgets.QLabel("Users")
-        users_label_font = users_label.font()
-        users_label_font.setBold(True)
-        users_label.setFont(users_label_font)
+        users_label.setObjectName("sectionTitle")
 
         self.users = QtWidgets.QListWidget()
-        self.users.setMinimumWidth(180)
+        self.users.setMinimumWidth(190)
         self.users.setMaximumWidth(240)
         self.users.setSelectionMode(QtWidgets.QAbstractItemView.SingleSelection)
 
         self.clear_selection_button = QtWidgets.QPushButton("Broadcast")
+        self.clear_selection_button.setObjectName("secondaryButton")
 
         sidebar.addWidget(users_label)
         sidebar.addWidget(self.users, 1)
         sidebar.addWidget(self.clear_selection_button)
 
+        self.messages_card = QtWidgets.QFrame()
+        self.messages_card.setObjectName("card")
+        messages_layout = QtWidgets.QVBoxLayout(self.messages_card)
+        messages_layout.setContentsMargins(14, 14, 14, 14)
+
         self.messages = QtWidgets.QTextEdit()
         self.messages.setReadOnly(True)
-        self.messages.setFont(
-            QtGui.QFontDatabase.systemFont(QtGui.QFontDatabase.FixedFont)
-        )
 
-        content.addLayout(sidebar)
-        content.addWidget(self.messages, 1)
+        messages_layout.addWidget(self.messages)
+
+        content.addWidget(self.sidebar_card)
+        content.addWidget(self.messages_card, 1)
 
         input_bar = QtWidgets.QHBoxLayout()
+        input_bar.setSpacing(10)
 
         self.message_input = QtWidgets.QLineEdit()
-        self.message_input.setPlaceholderText("message")
-        self.message_input.setMinimumHeight(34)
+        self.message_input.setPlaceholderText("Type a message...")
+        self.message_input.setMinimumHeight(42)
 
         self.send_button = QtWidgets.QPushButton("Send")
-        self.send_button.setMinimumHeight(34)
+        self.send_button.setMinimumHeight(42)
+        self.send_button.setMinimumWidth(96)
 
         input_bar.addWidget(self.message_input, 1)
         input_bar.addWidget(self.send_button)
@@ -95,10 +105,8 @@ class ChatPage(QtWidgets.QWidget):
 
     def selected_user(self) -> str | None:
         selected_items = self.users.selectedItems()
-
         if not selected_items:
             return None
-
         return selected_items[0].text()
 
     def update_users(self, users: tuple[str, ...]) -> None:
@@ -125,9 +133,118 @@ class ChatPage(QtWidgets.QWidget):
         self.chat_title.setText(title)
 
     def set_status(self, status: str) -> None:
-        self.chat_status.setText(status)
+        self.chat_status.setText(f"● {status}")
 
     def set_connected(self, connected: bool) -> None:
         self.message_input.setEnabled(connected)
         self.send_button.setEnabled(connected)
         self.leave_button.setEnabled(connected)
+
+    def _apply_styles(self) -> None:
+        self.setStyleSheet("""
+            ChatPage {
+                background-color: #111827;
+            }
+
+            QLabel#chatTitle {
+                color: #F9FAFB;
+                font-size: 24px;
+                font-weight: 700;
+            }
+
+            QLabel#chatStatus {
+                color: #22C55E;
+                font-size: 14px;
+            }
+
+            QLabel#sectionTitle {
+                color: #F9FAFB;
+                font-size: 15px;
+                font-weight: 700;
+            }
+
+            QFrame#card {
+                background-color: #1F2937;
+                border: 1px solid #374151;
+                border-radius: 14px;
+            }
+
+            QListWidget {
+                background-color: #111827;
+                color: #F9FAFB;
+                border: 1px solid #374151;
+                border-radius: 10px;
+                padding: 6px;
+                outline: none;
+            }
+
+            QListWidget::item {
+                padding: 8px;
+                border-radius: 8px;
+            }
+
+            QListWidget::item:selected {
+                background-color: #2563EB;
+                color: white;
+            }
+
+            QTextEdit {
+                background-color: #111827;
+                color: #F9FAFB;
+                border: 1px solid #374151;
+                border-radius: 10px;
+                padding: 10px;
+                font-size: 14px;
+            }
+
+            QLineEdit {
+                background-color: #1F2937;
+                color: #F9FAFB;
+                border: 1px solid #374151;
+                border-radius: 10px;
+                padding: 0 12px;
+                font-size: 14px;
+            }
+
+            QLineEdit:focus {
+                border: 1px solid #3B82F6;
+            }
+
+            QPushButton {
+                background-color: #2563EB;
+                color: white;
+                border: none;
+                border-radius: 10px;
+                font-weight: 600;
+                padding: 8px 14px;
+            }
+
+            QPushButton:hover {
+                background-color: #3B82F6;
+            }
+
+            QPushButton:pressed {
+                background-color: #1D4ED8;
+            }
+
+            QPushButton:disabled {
+                background-color: #374151;
+                color: #9CA3AF;
+            }
+
+            QPushButton#secondaryButton {
+                background-color: #374151;
+            }
+
+            QPushButton#secondaryButton:hover {
+                background-color: #4B5563;
+            }
+
+            QPushButton#leaveButton {
+                background-color: #DC2626;
+            }
+
+            QPushButton#leaveButton:hover {
+                background-color: #EF4444;
+            }
+        """)
