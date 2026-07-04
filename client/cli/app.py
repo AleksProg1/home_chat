@@ -1,50 +1,12 @@
-"""Command-line chat client."""
-
-from __future__ import annotations
-
-import argparse
 import asyncio
 from contextlib import suppress
-
-from client.commands import CommandParseError, parse_user_command
-from client.config import ClientConfig
-from client.chat_client_controller import ChatClientController
-from client.events import ClientStatus, ViewEvent, ViewEventKind
+from client.commands import parse_user_command, CommandParseError
 from client.session import ChatSession
+from client.events import ClientStatus
+from client.cli.console_view import ConsoleView
+from client.controller import ChatClientController
 from client.transport import WebSocketChatTransport
-
 EXIT_COMMANDS = {"/quit", "/exit"}
-
-
-class ConsoleView:
-    async def show_event(self, event: ViewEvent) -> None:
-        if event.kind is ViewEventKind.USERS:
-            print(f"users: {event.text}")
-        elif event.kind is ViewEventKind.ERROR:
-            print(f"error: {event.text}")
-        elif event.kind is ViewEventKind.DISCONNECTED:
-            print(f"disconnected: {event.text}")
-        else:
-            print(event.text)
-
-    async def show_status(self, status: ClientStatus) -> None:
-        print(f"status: {status.value}")
-
-    async def show_local_error(self, message: str) -> None:
-        print(f"error: {message}")
-
-
-async def run_cli(server_uri: str) -> None:
-    view = ConsoleView()
-
-    while True:
-        username = await _prompt_username()
-        if username is None:
-            return
-
-        should_exit = await _run_chat_session(server_uri, username, view)
-        if should_exit:
-            return
 
 
 async def _prompt_username() -> str | None:
@@ -62,7 +24,6 @@ async def _prompt_username() -> str | None:
         if username:
             return username
         print("error: username is required")
-
 
 async def _run_chat_session(server_uri: str, username: str, view: ConsoleView) -> bool:
     session = ChatSession(WebSocketChatTransport(server_uri))
@@ -116,20 +77,14 @@ async def _run_chat_session(server_uri: str, username: str, view: ConsoleView) -
     return False
 
 
-def build_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(description="WebSocket chat CLI client")
-    parser.add_argument(
-        "--server",
-        default=ClientConfig.from_env().server_uri,
-        help="WebSocket server URI, defaults to CHAT_SERVER_URI or ws://127.0.0.1:8765",
-    )
-    return parser
+async def run_cli(server_uri: str) -> None:
+    view = ConsoleView()
 
+    while True:
+        username = await _prompt_username()
+        if username is None:
+            return
 
-def main() -> None:
-    args = build_parser().parse_args()
-    asyncio.run(run_cli(args.server))
-
-
-if __name__ == "__main__":
-    main()
+        should_exit = await _run_chat_session(server_uri, username, view)
+        if should_exit:
+            return

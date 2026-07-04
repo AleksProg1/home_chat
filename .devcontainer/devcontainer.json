@@ -6,8 +6,15 @@
   },
   "remoteUser": "vscode",
   "runArgs": [
-    "--network=host"
+    "--network=host",
+    "-v",
+    "/tmp/.X11-unix:/tmp/.X11-unix"
   ],
+  "containerEnv": {
+    "DISPLAY": "${localEnv:DISPLAY}",
+    "QT_XCB_GL_INTEGRATION": "none",
+    "LIBGL_ALWAYS_SOFTWARE": "1"
+  },
   "customizations": {
     "vscode": {
       "extensions": [

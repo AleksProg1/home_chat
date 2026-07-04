@@ -9,7 +9,7 @@ from client.commands import (
     broadcast_command,
     parse_user_command,
 )
-from client.chat_client_controller import ChatClientController
+from client.controller import ChatClientController
 from client.events import ClientStatus, ViewEventKind
 from client.presenter import ChatPresenter
 from client.session import ChatSession
